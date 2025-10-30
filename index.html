@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マリオスタイル プラットフォーマー</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>🎮 マリオスタイル ゲーム</h1>
+            <div class="game-info">
+                <div class="score">スコア: <span id="score">0</span></div>
+                <div class="lives">ライフ: <span id="lives">3</span></div>
+                <div class="level">レベル: <span id="level">1</span></div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div class="game-controls">
+            <div class="instructions">
+                <h3>操作方法:</h3>
+                <p>← → : 移動 | スペース/↑ : ジャンプ | R : リスタート</p>
+            </div>
+            <div class="game-state" id="gameState"></div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
