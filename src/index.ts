@@ -5,6 +5,7 @@ async function main() {
     const n8n = new N8nClient();
 
     console.log('🚀 n8n Cloudに接続中...');
+    console.log(`📍 URL: ${process.env.N8N_INSTANCE_URL}/api/v1/workflows`);
 
     // ワークフロー一覧を取得
     const workflows = await n8n.getWorkflows();
@@ -23,6 +24,7 @@ async function main() {
     if (error.response) {
       console.error(`  ステータス: ${error.response.status}`);
       console.error(`  メッセージ: ${error.response.data?.message || error.message}`);
+      console.error(`  レスポンスデータ:`, JSON.stringify(error.response.data, null, 2));
     } else {
       console.error(`  ${error.message}`);
     }
