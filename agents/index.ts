@@ -3,42 +3,41 @@
  *
  * Remotionを使用した動画編集を自動化するサブエージェントシステム
  *
- * エージェント構成:
- * 1. ScriptAnalyzer - 台本を分析してシーンに分割
- * 2. AudioProcessor - 音声ファイルをシーンに紐付け
- * 3. SubtitleGenerator - 字幕を生成
- * 4. VideoComposer - 映像素材を配置
- * 5. BGMManager - BGMを管理
- * 6. Orchestrator - 全体を統括
+ * ========================================
+ * AI動画 + 楽曲字幕 モード（シンプル）
+ * ========================================
  *
- * 使用例:
  * ```typescript
- * import { orchestrator, CreateProjectInput } from './agents';
+ * import { aiVideoEditor } from './agents';
  *
- * const input: CreateProjectInput = {
- *   name: 'My Video Project',
- *   script: `
- *     【イントロ】
- *     こんにちは！今日は新機能を紹介します。
- *     ---
- *     【メイン】
- *     この機能はとても便利です。
- *     ---
- *     【アウトロ】
- *     ご視聴ありがとうございました！
+ * const result = await aiVideoEditor.edit({
+ *   projectName: 'my-music-video',
+ *   videoFiles: ['project/ai-video/scene1.mp4'],
+ *   musicFile: 'project/audio/song.mp3',
+ *   duration: 180, // 3分
+ *   lyrics: `
+ *     [00:05.00]最初の歌詞
+ *     [00:10.00]次の歌詞
+ *     [00:15.00]サビの部分
  *   `,
- *   assets: {
- *     avatar: { default: 'project/avatar/main.mp4' },
- *     bgm: { intro: 'project/bgm/intro.mp3' },
- *   },
- * };
- *
- * const project = await orchestrator.runPipeline(input, {
- *   onProgress: (stage, status) => console.log(`${stage}: ${status}`),
  * });
  *
  * // Remotion用の設定を生成
- * const composition = orchestrator.generateRemotionComposition();
+ * const composition = aiVideoEditor.toRemotionComposition(result);
+ * ```
+ *
+ * ========================================
+ * フル機能モード（台本ベース）
+ * ========================================
+ *
+ * ```typescript
+ * import { orchestrator } from './agents';
+ *
+ * const project = await orchestrator.runPipeline({
+ *   name: 'My Video',
+ *   script: '【イントロ】こんにちは！',
+ *   assets: { avatar: { default: 'project/avatar/main.mp4' } },
+ * });
  * ```
  */
 
@@ -62,6 +61,14 @@ export type { VideoCompositionInput, LayoutPreset } from './video-composer';
 export { default as BGMManagerAgent } from './bgm-manager';
 export type { BGMManagementInput, DuckingConfig } from './bgm-manager';
 
+// 歌詞字幕エージェント（楽曲向け）
+export { default as LyricsSubtitleAgent } from './lyrics-subtitle';
+export type { LyricsInput, LyricLine, LyricsSubtitleResult } from './lyrics-subtitle';
+
+// AI動画エディター（シンプルモード）
+export { aiVideoEditor, AIVideoEditor } from './ai-video-editor';
+export type { AIVideoEditInput, AIVideoEditResult } from './ai-video-editor';
+
 // オーケストレーター
 export { orchestrator, Orchestrator } from './orchestrator';
 export type {
@@ -69,6 +76,40 @@ export type {
   PipelineOptions,
   RemotionCompositionData,
 } from './orchestrator';
+
+/**
+ * クイックスタート: AI動画 + 楽曲字幕で動画を作成
+ *
+ * @example
+ * ```typescript
+ * const result = await createMusicVideo({
+ *   name: 'my-song',
+ *   video: 'project/ai-video/video.mp4',
+ *   music: 'project/audio/song.mp3',
+ *   duration: 180,
+ *   lyrics: '[00:05.00]歌詞...',
+ * });
+ * ```
+ */
+export async function createMusicVideo(options: {
+  name: string;
+  video: string | string[];
+  music: string;
+  duration: number;
+  lyrics?: string;
+}) {
+  const { aiVideoEditor } = await import('./ai-video-editor');
+
+  const videoFiles = Array.isArray(options.video) ? options.video : [options.video];
+
+  return aiVideoEditor.edit({
+    projectName: options.name,
+    videoFiles,
+    musicFile: options.music,
+    duration: options.duration,
+    lyrics: options.lyrics,
+  });
+}
 
 /**
  * クイックスタート: 台本から動画プロジェクトを作成
